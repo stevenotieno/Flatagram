@@ -1,98 +1,62 @@
-// write your code here
+// write your code
+// declaring variables
+const FlatagramAPI = "http://localhost:3000/images/1";
+const cardImage = document.getElementById("card-image");
+const cardTitle = document.getElementById("card-title");
+const likeCount = document.getElementById("like-count");
+const commentsList = document.getElementById("comments-list");
+let likes;
+// eventlistener for likes button
+    el("like-button").addEventListener("click", () => {
+        likes += 1;
+        renderLikes();
+    });
+//eventlistener for post button
+    el("comment-form").addEventListener('submit', addComment)
 
+// fetch data from server
+fetch (FlatagramAPI)
+    .then((res) => res.json())
+    .then(renderGram);
 
-document.addEventListener('DOMContentLoaded',()=>{
-  
-    fetch('http://localhost:3000/images')
-    .then((resp)=>resp.json())
-    .then((data)=>{
-      
-      // render data to DOM
-      renderData(data)
-      hideImage(data)
-      //getting comments from the api
-      fetchComments()
-      //input form
-      inputForm()
-        
-      //like button
-      button()
-        
-      })
-  })
-  
-  function fetchComments(){
-  
-      fetch('http://localhost:3000/comments')
-      .then((resp)=>resp.json())
-      .then((data)=>{
-          for(let item of data){
-              const ul=document.querySelector("#comments-list")
-              const li=document.createElement('li')
-              li.innerHTML=item.content
-              ul.appendChild(li)
-              
-            }
-          })
-  }
-  
-  function button(){
-  
-      const likeBtn=document.querySelector("#like-button")
-      let likeCount=0;
-      likeBtn.addEventListener('click',()=>{
-        likeCount++
-        let likeSpan=document.querySelector("#like-count")
-        likeSpan.innerHTML=(`${likeCount} likes`)  
-      })
-  }
-  function hideImage(data){
-      for (items of data){
-      const header=document.getElementById("card-title")
-      let image=document.querySelector("#card-image")
-      header.addEventListener('click',()=>{
-        if(image.src==
-          'http://127.0.0.1:5500/assets/coder-dog.png'){
-          image.src="./assets/image-placeholder.jpg"
-        }
-        else{
-          image.src=items.image
-        }
-      })
-    }
-    }
-    function renderData(data){
+// load likes, image and title
+function renderGram(data){
+    likes = data.likes
+    cardImage.src = data.image;
+    cardTitle.textContent = data.title
+    renderLikes()
     
-      for (let items of data){
-        
-        //getting title from api
-        let title=document.querySelector("#card-title" )
-        title.innerHTML=items.title
-        //getting the image form api
-        let image=document.querySelector("#card-image")
-        image.src=items.image
-        image.alt=items.title
-        //getting the likes from api
-        let likeSpan=document.querySelector("#like-count")
-        likeSpan.innerHTML=(`${items.likes} likes`)  
-      }
-    }
-    function inputForm(){
-  
-      const form=document.querySelector("#comment-form")
-      form.addEventListener('submit',(e)=>{
-        e.preventDefault()
-        const input=document.querySelector("#comment")
-        const button=document.querySelector(".comment-button")
-        const ul=document.querySelector("#comments-list")
-        button.addEventListener('click',()=>{
-          const li=document.createElement('li')
-          li.innerHTML=input.value
-          ul.append(li)
-          li.addEventListener('click',()=>{
-            li.remove()
-          })
-          e.target.reset()
-        })
-      })
-    }
+    renderComments(data.comments);
+}
+
+// display likes, instead of "0" from server, have "${likes} likes"
+function renderLikes(){
+    document.getElementById("like-count").textContent = `${likes} likes`;
+}
+
+// sets existing li items as empty strings
+function renderComments(comments){
+    commentsList.innerHTML = '';
+    comments.forEach(renderComment);
+}
+
+//renders comments from server 
+function renderComment (comment){
+    const li = document.createElement("li");
+    li.textContent = comment.content;
+    commentsList.append(li);
+}
+
+// renders comments in the input field with ID of comment
+function addComment(event){
+    event.preventDefault();
+    const commentText = event.target.comment.value;
+    renderComment({content : commentText});
+
+    event.target.reset();
+}
+
+// gets elements with args id
+function el(id){
+    return document.getElementById(id);
+}
